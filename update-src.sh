@@ -1,9 +1,9 @@
 #!/bin/sh
 
 for i in *; do
-	echo "####\n$i"
-	cd $i
+	printf "####\n%s\n" "$i"
+	cd "$i" || exit
 	git pull --rebase
 	cd ..
-	echo "####\n"
+	# printf "####\n"
 done
