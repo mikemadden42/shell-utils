@@ -30,4 +30,4 @@ jobs:
 
       # Check shell scripts
       - name: Check
-        run: shellcheck *.sh
+        run: shellcheck *.bash *.sh
