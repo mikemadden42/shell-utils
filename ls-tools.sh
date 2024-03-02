@@ -10,6 +10,7 @@ dpkg -l \
 	diffutils \
 	dpkg \
 	findutils \
+	gawk \
 	git \
 	google-chrome-stable \
 	grep \
@@ -19,6 +20,7 @@ dpkg -l \
 	ripgrep \
 	rsync \
 	screen \
+	sed \
 	silversearcher-ag \
 	slack-desktop \
 	sudo \
