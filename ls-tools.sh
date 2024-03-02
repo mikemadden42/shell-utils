@@ -16,9 +16,11 @@ dpkg -l \
 	grep \
 	htop \
 	mount \
+	perl \
 	python3 \
 	ripgrep \
 	rsync \
+	ruby \
 	screen \
 	sed \
 	silversearcher-ag \
