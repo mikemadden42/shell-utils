@@ -4,8 +4,8 @@
 past_date="2020-07-06"
 
 # Get timestamps in seconds since epoch for today and past date
-now_seconds=$(gdate +%s)
-past_seconds=$(gdate +%s --date="$past_date")
+now_seconds=$(date +%s)
+past_seconds=$(date +%s --date="$past_date")
 
 # Calculate the difference in seconds
 difference_seconds=$((now_seconds - past_seconds))
