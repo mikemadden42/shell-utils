@@ -1,6 +1,6 @@
 # shell-utils
 
-Linux shell scripts
+Linux/macOS shell scripts
 
 Run formatting and lint checks:
 
