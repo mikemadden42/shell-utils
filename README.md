@@ -9,6 +9,6 @@ shfmt -d *.bash *.sh
 shellcheck *.sh
 ```
 
-These scripts scripts only work on macOS:
+These scripts only work on macOS:
 - ls-battery.sh
 - set-volume.sh
