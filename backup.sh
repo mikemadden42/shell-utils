@@ -19,7 +19,6 @@ cd "/home" || {
 # - Added verbose (-v) removal for cron (optional, keeps logs cleaner)
 tar --exclude "${BACKUP_USER}/.cargo" \
 	--exclude "${BACKUP_USER}/.rustup" \
-	--exclude "${BACKUP_USER}/rust" \
 	-czvf "${TARGET_DIR}/${ARCHIVE_NAME}" \
 	"${BACKUP_USER}"
 
