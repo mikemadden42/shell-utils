@@ -5,6 +5,7 @@ extensions=(
 	charliermarsh.ruff
 	davidanson.vscode-markdownlint
 	dimitarnonov.jellybeans-theme
+	esbenp.prettier-vscode
 	frhtylcn.pythonsnippets
 	golang.go
 	jdinhlife.gruvbox
