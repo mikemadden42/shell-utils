@@ -29,8 +29,8 @@ log_step "Starting operations in directory: '$TARGET_DIR'"
 # 2. Create 4 randomly named files
 log_step "Creating 4 randomly named files..."
 for _ in {1..4}; do
-	# Generate a random 8-character alphanumeric string
-	RAND_STR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8)
+	# Generate a random 8-character alphanumeric string (macOS/Linux compatible)
+	RAND_STR=$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 8)
 	FILE_PATH="$TARGET_DIR/file_${RAND_STR}.txt"
 
 	touch "$FILE_PATH"
@@ -40,7 +40,8 @@ done
 # 3. Create 4 randomly named directories
 log_step "Creating 4 randomly named directories..."
 for _ in {1..4}; do
-	RAND_STR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8)
+	# Generate a random 8-character alphanumeric string (macOS/Linux compatible)
+	RAND_STR=$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 8)
 	DIR_PATH="$TARGET_DIR/dir_${RAND_STR}"
 
 	mkdir "$DIR_PATH"
