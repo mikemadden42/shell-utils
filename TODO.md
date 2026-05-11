@@ -3,11 +3,11 @@
 List of identified issues and improvements for the `shell-utils` project.
 
 ## Security & Robustness
-- [ ] **Fix Insecure Temporary Directories**: Replace fixed paths in `/tmp` (e.g., in `pkg-hist.bash`) with `mktemp -d` to prevent symlink attacks and collisions.
+- [ ] **Fix Insecure Temporary Directories**: Replace fixed paths in `/tmp` (e.g., `OF=/tmp/calculate_best_bs.temp` in `best-block.bash`) with `mktemp` to prevent symlink attacks and collisions. (`pkg-hist.bash` done.)
 - [ ] **Improve Error Handling**: 
     - [ ] Add `set -euo pipefail` to Bash scripts where appropriate.
     - [ ] Add explicit checks for `cd`, `mkdir`, and critical command successes.
-- [ ] **Robust Globbing**: Fix `add-hashes.sh` and similar scripts to handle cases where no files match the glob pattern (e.g., using `shopt -s nullglob` in Bash or checking file existence inside the loop).
+- [ ] **Robust Globbing**: Audit other scripts that loop over globs for the same no-match-produces-literal-pattern bug. (`add-hashes.sh` done.)
 
 ## Logic & Portability
 - [ ] **Dependency Verification**: Add checks to verify that external tools (e.g., `inxi`, `dmidecode`, `docker`, `pmset`) are installed before execution.
