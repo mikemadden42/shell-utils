@@ -3,7 +3,7 @@
 List of identified issues and improvements for the `shell-utils` project.
 
 ## Security & Robustness
-- [ ] **Fix Insecure Temporary Directories**: Replace fixed paths in `/tmp` (e.g., `OF=/tmp/calculate_best_bs.temp` in `best-block.bash`) with `mktemp` to prevent symlink attacks and collisions. (`pkg-hist.bash` done.)
+- [x] **Fix Insecure Temporary Directories**: ~~Replace fixed paths in `/tmp` with `mktemp` to prevent symlink attacks and collisions.~~ Done in `pkg-hist.bash` and `best-block.bash`.
 - [ ] **Improve Error Handling**: 
     - [ ] Add `set -euo pipefail` to Bash scripts where appropriate.
     - [ ] Add explicit checks for `cd`, `mkdir`, and critical command successes.
