@@ -1,10 +1,13 @@
 #!/bin/bash
 
+dpkg_dir=$(mktemp -d)
+apt_dir=$(mktemp -d)
+trap 'rm -rf "$dpkg_dir" "$apt_dir"' EXIT
+
 ########
 
-mkdir /tmp/dpkg_hist
-rsync -av /var/log/dpkg.log* /tmp/dpkg_hist
-pushd /tmp/dpkg_hist || exit
+rsync -av /var/log/dpkg.log* "$dpkg_dir"
+pushd "$dpkg_dir" || exit
 gunzip -- *.gz
 # shellcheck disable=SC2045
 for f in $(ls -rt); do
@@ -13,14 +16,11 @@ done
 popd || exit
 
 sort -u "$HOME/hist.log" >"$HOME/dpkg_history.log" && rm "$HOME/hist.log"
-rm -f /tmp/dpkg_hist/*
-rmdir /tmp/dpkg_hist
 
 ########
 
-mkdir /tmp/apt_hist
-rsync -av /var/log/apt/history.log* /tmp/apt_hist
-pushd /tmp/apt_hist || exit
+rsync -av /var/log/apt/history.log* "$apt_dir"
+pushd "$apt_dir" || exit
 gunzip -- *.gz
 # shellcheck disable=SC2045
 for f in $(ls -rt); do
@@ -29,7 +29,5 @@ done
 popd || exit
 
 mv "$HOME/hist.log" "$HOME/apt_history.log"
-rm -f /tmp/apt_hist/*
-rmdir /tmp/apt_hist
 
 ########
