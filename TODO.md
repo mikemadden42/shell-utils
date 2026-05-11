@@ -22,3 +22,10 @@ List of identified issues and improvements for the `shell-utils` project.
     - [ ] Resolve existing `shellcheck` warnings (as seen in `pkg-hist.bash` comments).
     - [ ] Apply `shfmt` across all scripts for consistent indentation.
 - [ ] **Shebang Consistency**: Ensure all scripts have appropriate and consistent shebangs (e.g., `#!/usr/bin/env bash` for better portability).
+
+## `download-claude-code.bash`
+- [ ] **Deduplicate suffix derivation**: Lines 21-22 and 31-32 each compute `suffix=""; [[ $platform == win32-* ]] && suffix=".exe"`. Compute once into a parallel array, or accept the duplication.
+- [ ] **Tabs vs spaces**: Uses tabs; `install-bun.bash` uses 4 spaces. Pick one repo-wide.
+- [ ] **`chmod +x` downloaded binaries**: Only matters if the binaries are meant to be run directly from the download dir.
+- [ ] **Validate `VERSION`**: `${1:-...}` is interpolated into `mkdir -p` and filenames with no sanity check; a value containing `..` or shell metacharacters would produce surprising paths.
+- [ ] **Redundant per-platform error blocks**: `|| { echo …; exit 1; }` after each `curl -f` is redundant with `set -e`; it only adds a friendlier message. Either keep for UX or drop for brevity.
