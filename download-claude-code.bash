@@ -11,10 +11,6 @@ else
 	sha256=(shasum -a 256)
 fi
 
-platform_binary() {
-	[[ $1 == win32-* ]] && echo claude.exe || echo claude
-}
-
 VERSION="${1:-$(curl -fsSL "${BASE_URL}/stable")}"
 if [[ -z $VERSION ]]; then
 	echo "Error: Failed to fetch latest version." >&2
@@ -22,7 +18,9 @@ if [[ -z $VERSION ]]; then
 fi
 echo "Downloading version ${VERSION}..."
 for platform in "${PLATFORMS[@]}"; do
-	echo "  ${BASE_URL}/${VERSION}/${platform}/$(platform_binary "$platform")"
+	suffix=""
+	[[ $platform == win32-* ]] && suffix=".exe"
+	echo "  ${BASE_URL}/${VERSION}/${platform}/claude${suffix}"
 done
 
 mkdir -p "claude-${VERSION}"
@@ -30,10 +28,10 @@ cd "claude-${VERSION}"
 
 files=()
 for platform in "${PLATFORMS[@]}"; do
-	binary=$(platform_binary "$platform")
-	out="claude-${VERSION}-${platform}"
-	[[ $binary == *.exe ]] && out="${out}.exe"
-	curl -fsSL "${BASE_URL}/${VERSION}/${platform}/${binary}" -o "$out" || {
+	suffix=""
+	[[ $platform == win32-* ]] && suffix=".exe"
+	out="claude-${VERSION}-${platform}${suffix}"
+	curl -fsSL "${BASE_URL}/${VERSION}/${platform}/claude${suffix}" -o "$out" || {
 		echo "Error: Failed to download ${platform} binary." >&2
 		exit 1
 	}
