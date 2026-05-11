@@ -18,9 +18,7 @@ List of identified issues and improvements for the `shell-utils` project.
 
 ## Maintenance & Style
 - [ ] **Standardize Extensions**: Decide on a consistent naming convention for `.sh` vs `.bash` or ensure extensions strictly match the shebang.
-- [ ] **Linting & Formatting**: 
-    - [ ] Resolve existing `shellcheck` warnings (as seen in `pkg-hist.bash` comments).
-    - [ ] Apply `shfmt` across all scripts for consistent indentation.
+- [ ] **Resolve `shellcheck` Suppressions**: Address the existing `# shellcheck disable` comments (e.g., the SC2045 suppressions in `pkg-hist.bash`).
 - [ ] **Shebang Consistency**: Ensure all scripts have appropriate and consistent shebangs (e.g., `#!/usr/bin/env bash` for better portability).
 
 ## `download-claude-code.bash`
