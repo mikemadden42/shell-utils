@@ -7,7 +7,9 @@ List of identified issues and improvements for the `shell-utils` project.
 - [ ] **Improve Error Handling**: 
     - [ ] Add `set -euo pipefail` to Bash scripts where appropriate.
     - [ ] Add explicit checks for `cd`, `mkdir`, and critical command successes.
-- [ ] **Robust Globbing**: Audit other scripts that loop over globs for the same no-match-produces-literal-pattern bug. (`add-hashes.sh` done.)
+- [ ] **Robust Globbing**: Two scripts still bite on unmatched globs (audit done; `add-hashes.sh`/`battery-status.bash`/`check-git.sh` are safe):
+    - [ ] `update-src.sh:3` — `for i in *; do ... cd "$i" || exit` bails on empty cwd and on the first regular file. Add `[ -d "$i" ] || continue` before the `cd`.
+    - [ ] `make-tarballs.bash:3` — `for dir in */; do` on an empty cwd produces a literal `*.tar.gz` file in `$HOME`. Add `[ -d "$dir" ] || continue` (and drop the bogus `.`/`..` check, since `*/` never matches them).
 
 ## Logic & Portability
 - [ ] **Dependency Verification**: Add checks to verify that external tools (e.g., `inxi`, `dmidecode`, `docker`, `pmset`) are installed before execution.
