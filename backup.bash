@@ -2,10 +2,11 @@
 
 # 1. Use robust user detection (safe for Cron)
 BACKUP_USER=$(id -un)
+HOSTNAME_SHORT=$(hostname -s)
 NOW=$(date +%Y-%m-%d-%H-%M)
 # 2. Define paths clearly
 TARGET_DIR="/tmp"
-ARCHIVE_NAME="${BACKUP_USER}-${NOW}.tar.gz"
+ARCHIVE_NAME="${BACKUP_USER}-${HOSTNAME_SHORT}-${NOW}.tar.gz"
 
 # 3. Change directory safely
 cd "/home" || {
