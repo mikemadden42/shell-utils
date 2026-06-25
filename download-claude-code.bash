@@ -16,26 +16,28 @@ if [[ -z $VERSION ]]; then
 	echo "Error: Failed to fetch latest version." >&2
 	exit 1
 fi
-echo "Downloading version ${VERSION}..."
-for platform in "${PLATFORMS[@]}"; do
-	suffix=""
-	[[ $platform == win32-* ]] && suffix=".exe"
-	echo "  ${BASE_URL}/${VERSION}/${platform}/claude${suffix}"
-done
+if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9.-]+)?$ ]]; then
+	echo "Error: Invalid version '${VERSION}'." >&2
+	exit 1
+fi
 
-mkdir -p "claude-${VERSION}"
-cd "claude-${VERSION}"
-
+urls=()
 files=()
 for platform in "${PLATFORMS[@]}"; do
 	suffix=""
 	[[ $platform == win32-* ]] && suffix=".exe"
-	out="claude-${VERSION}-${platform}${suffix}"
-	curl -fsSL "${BASE_URL}/${VERSION}/${platform}/claude${suffix}" -o "$out" || {
-		echo "Error: Failed to download ${platform} binary." >&2
-		exit 1
-	}
-	files+=("$out")
+	urls+=("${BASE_URL}/${VERSION}/${platform}/claude${suffix}")
+	files+=("claude-${VERSION}-${platform}${suffix}")
+done
+
+echo "Downloading version ${VERSION}..."
+printf '  %s\n' "${urls[@]}"
+
+mkdir -p "claude-${VERSION}"
+cd "claude-${VERSION}"
+
+for i in "${!urls[@]}"; do
+	curl -fsSL "${urls[i]}" -o "${files[i]}"
 done
 
 chmod +x "${files[@]}"
