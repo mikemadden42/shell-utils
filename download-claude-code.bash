@@ -38,6 +38,8 @@ for platform in "${PLATFORMS[@]}"; do
 	files+=("$out")
 done
 
+chmod +x "${files[@]}"
+
 "${sha256[@]}" "${files[@]}" >"claude-${VERSION}-sha256sums.txt"
 
 echo "SHA256 sums written to claude-${VERSION}/claude-${VERSION}-sha256sums.txt"
