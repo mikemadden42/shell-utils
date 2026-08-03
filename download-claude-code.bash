@@ -30,14 +30,22 @@ for platform in "${PLATFORMS[@]}"; do
 	files+=("claude-${VERSION}-${platform}${suffix}")
 done
 
-echo "Downloading version ${VERSION}..."
-printf '  %s\n' "${urls[@]}"
+echo "Downloading version ${VERSION} (${#urls[@]} files)..."
 
 mkdir -p "claude-${VERSION}"
 cd "claude-${VERSION}"
 
 for i in "${!urls[@]}"; do
-	curl -fsSL "${urls[i]}" -o "${files[i]}"
+	printf '[%d/%d] %s\n' "$((i + 1))" "${#urls[@]}" "${files[i]}"
+	if [[ -f ${files[i]} ]]; then
+		remote_size=$(curl -fsSL -I "${urls[i]}" | grep -i '^content-length:' | tail -1 | tr -dc '0-9' || true)
+		local_size=$(wc -c <"${files[i]}" | tr -dc '0-9')
+		if [[ -n $remote_size && $local_size == "$remote_size" ]]; then
+			echo "already complete, skipping"
+			continue
+		fi
+	fi
+	curl -fL --progress-bar -C - -R "${urls[i]}" -o "${files[i]}"
 done
 
 chmod +x "${files[@]}"
