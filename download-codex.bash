@@ -26,7 +26,10 @@ TARGETS=(
 
 for required in curl jq; do
 	command -v "$required" >/dev/null ||
-		{ echo "Error: required command not found: ${required}" >&2; exit 1; }
+		{
+			echo "Error: required command not found: ${required}" >&2
+			exit 1
+		}
 done
 
 if command -v sha256sum >/dev/null; then
