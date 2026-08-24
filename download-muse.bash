@@ -11,9 +11,6 @@ CHANNEL="${MUSE_CHANNEL:-muse-stable}"
 CHANNEL_URL="${MUSE_CHANNEL_URL:-https://api.meta.ai/muse-code/channels/${CHANNEL}}"
 USER_AGENT="muse-code/launcher-2"
 
-# Manifest keys to mirror, in download order.
-PLATFORMS=(aarch64_macos x86_macos aarch64_linux x86_linux universal_macos_pkg)
-
 for required in curl jq; do
 	command -v "$required" >/dev/null ||
 		{
@@ -58,6 +55,16 @@ if [[ "$(jq -r '.checksum_algorithm' <<<"$release_json")" != sha256 ]]; then
 	exit 1
 fi
 
+# Mirror whatever the release manifest publishes, so newly added platforms are
+# picked up automatically instead of silently going unmirrored.
+mapfile -t platforms < <(jq -r '.artifacts | keys[]' <<<"$release_json")
+if ((${#platforms[@]} == 0)); then
+	echo "Error: release manifest lists no artifacts." >&2
+	exit 1
+fi
+
+echo "Mirroring ${#platforms[@]} artifacts..."
+
 outdir="muse-${VERSION}"
 mkdir -p "$outdir"
 cd "$outdir"
@@ -65,12 +72,8 @@ cd "$outdir"
 sums_file="muse-${VERSION}-sha256sums.txt"
 : >"$sums_file"
 
-for platform in "${PLATFORMS[@]}"; do
-	artifact="$(jq -c --arg p "$platform" '.artifacts[$p] // empty' <<<"$release_json")"
-	if [[ -z $artifact ]]; then
-		echo "[${platform}] not in manifest, skipping"
-		continue
-	fi
+for platform in "${platforms[@]}"; do
+	artifact="$(jq -c --arg p "$platform" '.artifacts[$p]' <<<"$release_json")"
 	url="$(jq -r '.url' <<<"$artifact")"
 	checksum="$(jq -r '.checksum' <<<"$artifact")"
 	size="$(jq -r '.size' <<<"$artifact")"
@@ -79,8 +82,15 @@ for platform in "${PLATFORMS[@]}"; do
 		exit 1
 	fi
 
-	file="muse-${VERSION}-${platform}"
-	[[ $platform == *_pkg ]] && file="${file}.pkg"
+	# The download URL carries the real filename in its file= parameter; take
+	# the extension from there (.pkg, .exe) instead of guessing per platform.
+	ext=""
+	if [[ $url == *file=* ]]; then
+		remote_name="${url##*file=}"
+		remote_name="${remote_name%%&*}"
+		[[ $remote_name == *.* ]] && ext=".${remote_name##*.}"
+	fi
+	file="muse-${VERSION}-${platform}${ext}"
 
 	printf '[%s] %s (%s bytes)\n' "$platform" "$file" "$size"
 
@@ -111,7 +121,7 @@ for platform in "${PLATFORMS[@]}"; do
 	echo "  verified ${checksum}"
 	printf '%s  %s\n' "$checksum" "$file" >>"$sums_file"
 
-	[[ $platform == *_pkg ]] || chmod +x "$file"
+	[[ $ext == .pkg ]] || chmod +x "$file"
 done
 
 echo

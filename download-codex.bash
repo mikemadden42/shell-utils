@@ -12,18 +12,6 @@ set -euo pipefail
 VERSION_INPUT="${1:-${CODEX_RELEASE:-latest}}"
 BASE_URL="${CODEX_RELEASES_BASE_URL:-https://releases.openai.com/codex}"
 
-# Rust target triples to mirror, in download order. Each maps to the asset
-# codex-package-<target>.tar.gz (a self-contained package: codex plus the
-# codex-code-mode-host, rg, and — on Linux — bwrap helpers).
-TARGETS=(
-	aarch64-apple-darwin
-	x86_64-apple-darwin
-	aarch64-unknown-linux-musl
-	x86_64-unknown-linux-musl
-	aarch64-pc-windows-msvc
-	x86_64-pc-windows-msvc
-)
-
 for required in curl jq; do
 	command -v "$required" >/dev/null ||
 		{
@@ -74,6 +62,20 @@ if [[ $version != latest && $VERSION != "$version" ]]; then
 	exit 1
 fi
 
+# Mirror every codex-package-<target>.tar.gz the release publishes (a
+# self-contained package: codex plus the codex-code-mode-host, rg, and — on
+# Linux — bwrap helpers). Deriving the list from the release means newly added
+# targets are picked up automatically instead of silently going unmirrored.
+mapfile -t targets < <(jq -r '.assets[].name
+	| select(startswith("codex-package-") and endswith(".tar.gz"))
+	| ltrimstr("codex-package-") | rtrimstr(".tar.gz")' <<<"$metadata" | sort)
+if ((${#targets[@]} == 0)); then
+	echo "Error: release publishes no codex-package archives." >&2
+	exit 1
+fi
+
+echo "Mirroring ${#targets[@]} targets..."
+
 outdir="codex-${VERSION}"
 mkdir -p "$outdir"
 cd "$outdir"
@@ -81,13 +83,9 @@ cd "$outdir"
 sums_file="codex-${VERSION}-SHA256SUMS.txt"
 : >"$sums_file"
 
-for target in "${TARGETS[@]}"; do
+for target in "${targets[@]}"; do
 	asset="codex-package-${target}.tar.gz"
 	entry="$(jq -c --arg n "$asset" '.assets[] | select(.name == $n)' <<<"$metadata")"
-	if [[ -z $entry ]]; then
-		echo "[${target}] ${asset} not in release, skipping"
-		continue
-	fi
 	url="$(jq -r '.browser_download_url' <<<"$entry")"
 	digest="$(jq -r '.digest' <<<"$entry")"
 	digest="${digest#sha256:}"
