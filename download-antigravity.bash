@@ -12,13 +12,21 @@ set -euo pipefail
 
 BASE_URL="${ANTIGRAVITY_BASE_URL:-https://antigravity-cli-auto-updater-974169037036.us-central1.run.app}"
 
-# Platform manifests to mirror. Antigravity ships glibc-only Linux builds
-# (no musl) and does not publish 32-bit targets.
+# Platform manifests to mirror. There is no index endpoint, so this list is
+# the full namespace the official installers can request: install.sh builds
+# darwin_<arch>, linux_<arch>, and linux_<arch>_musl when it detects musl;
+# install.ps1 builds windows_<arch>. Both only ever emit amd64 or arm64.
+#
+# The musl manifests 404 today (Antigravity publishes glibc-only Linux builds),
+# which the resolve loop reports and skips. They are listed anyway so that if
+# musl builds do appear they get mirrored without a code change.
 PLATFORMS=(
 	darwin_amd64
 	darwin_arm64
 	linux_amd64
 	linux_arm64
+	linux_amd64_musl
+	linux_arm64_musl
 	windows_amd64
 	windows_arm64
 )
@@ -64,7 +72,9 @@ plats=() urls=() digests=() files=()
 echo "Fetching manifests from ${BASE_URL}..."
 for platform in "${PLATFORMS[@]}"; do
 	manifest_url="$BASE_URL/manifests/${platform}.json"
-	if ! manifest="$(curl -fsSL --connect-timeout 10 --max-time 30 "$manifest_url")"; then
+	# A missing manifest is expected (musl today), and this loop reports it
+	# itself, so suppress curl's own error rather than printing both.
+	if ! manifest="$(curl -fsSL --connect-timeout 10 --max-time 30 "$manifest_url" 2>/dev/null)"; then
 		echo "  [${platform}] manifest unavailable, skipping"
 		continue
 	fi
