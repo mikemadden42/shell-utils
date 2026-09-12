@@ -42,3 +42,38 @@ you to make.
 
 Both honour `CODEX_INSTALL_DIR` (default `~/.local/bin`) and `CODEX_HOME`
 (default `~/.codex`).
+
+## Release channel versions
+
+`claude-code-versions.bash` and `codex-versions.bash` print the version each
+release channel currently points at:
+
+```console
+$ ./claude-code-versions.bash
+stable   2.1.236
+latest   2.1.269
+
+$ ./codex-versions.bash
+latest      0.154.0
+prerelease  0.155.0-alpha.3.10
+```
+
+Pass channel names to check others. A channel that cannot be fetched or does not
+resolve to a version is reported without stopping the rest, and the script exits
+non-zero.
+
+The two tools' channels do not line up:
+
+| Claude Code | Codex        | Meaning                                         |
+|-------------|--------------|-------------------------------------------------|
+| `stable`    | `latest`     | the current stable release                      |
+| `latest`    | —            | a newer full release, not yet promoted          |
+| —           | `prerelease` | the newest alpha                                |
+
+Codex's `prerelease` channel is undocumented and unused by the official
+`install.sh`, so it may change without notice.
+
+`claude-code-versions.bash` needs only `curl`; `codex-versions.bash` also needs
+`jq`, since Codex channels return release metadata rather than a bare version.
+Both honour the same base-URL override as their download scripts
+(`CLAUDE_CODE_RELEASES_BASE_URL`, `CODEX_RELEASES_BASE_URL`).
