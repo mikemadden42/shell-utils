@@ -77,3 +77,33 @@ Codex's `prerelease` channel is undocumented and unused by the official
 `jq`, since Codex channels return release metadata rather than a bare version.
 Both honour the same base-URL override as their download scripts
 (`CLAUDE_CODE_RELEASES_BASE_URL`, `CODEX_RELEASES_BASE_URL`).
+
+## Claude desktop installers
+
+`download-claude-desktop.bash` mirrors the Claude desktop app installers — the
+macOS `.pkg` and both Windows `.msix` builds:
+
+```bash
+./download-claude-desktop.bash                       # the three default targets
+./download-claude-desktop.bash --dry-run             # resolve and print, download nothing
+./download-claude-desktop.bash darwin/universal/dmg  # a specific target
+```
+
+Targets are written as `platform/arch/kind`. The download page hands each
+platform an `/api/desktop/<target>/latest/redirect` URL that redirects to the
+artifact on `downloads.claude.ai`, and `latest` is the only channel — pinned
+versions and names like `stable` and `beta` are refused.
+
+There is no manifest and no published checksum file, so unlike
+`download-claude-code.bash` the target list is written out rather than derived.
+Downloads are verified against the byte length and the ETag, which on these
+objects is a plain MD5. That catches truncation and corruption but not
+substitution, so the `sha256sums.txt` it writes is this mirror's own record, not
+an upstream attestation.
+
+The macOS endpoint may answer with a Cloudflare challenge instead of the
+redirect. Because every target in a release shares one version and build id, a
+challenged target is addressed directly on the CDN once any other target has
+resolved, and that URL is confirmed there before anything is downloaded. That
+needs a second target in the same run, so if the macOS endpoint is being
+challenged, ask for a Windows target alongside it rather than on its own.
