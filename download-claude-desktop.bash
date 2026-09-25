@@ -13,13 +13,20 @@ set -euo pipefail
 # truncation and corruption, not substitution.
 #
 # Usage: download-claude-desktop.bash [--dry-run] [TARGET...]
-#   TARGET is platform/arch/kind, e.g. darwin/universal/pkg (default: the three
-#   the download page offers). darwin/universal/dmg also exists.
+#   TARGET is platform/arch/kind, e.g. darwin/universal/pkg. The default five
+#   are the installer for each platform: the macOS pkg, which is universal and
+#   covers Intel as well as Apple Silicon, both Windows msix builds, and both
+#   Linux debs. Also published, and available by naming them: the macOS dmg,
+#   the Squirrel "Claude Setup.exe" for both Windows arches, and per-arch
+#   darwin zips, which are Squirrel.Mac auto-update payloads rather than
+#   something to install.
 
 DEFAULT_TARGETS=(
 	darwin/universal/pkg
 	win32/x64/msix
 	win32/arm64/msix
+	linux/x64/deb
+	linux/arm64/deb
 )
 API_BASE="${CLAUDE_DESKTOP_API_BASE_URL:-https://claude.ai/api/desktop}"
 CHANNEL="${CLAUDE_DESKTOP_RELEASE:-latest}"

@@ -81,15 +81,19 @@ Both honour the same base-URL override as their download scripts
 ## Claude desktop installers
 
 `download-claude-desktop.bash` mirrors the Claude desktop app installers — the
-macOS `.pkg` and both Windows `.msix` builds:
+macOS `.pkg`, both Windows `.msix` builds, and both Linux `.deb` packages:
 
 ```bash
-./download-claude-desktop.bash                       # the three default targets
+./download-claude-desktop.bash                       # the five default targets
 ./download-claude-desktop.bash --dry-run             # resolve and print, download nothing
 ./download-claude-desktop.bash darwin/universal/dmg  # a specific target
 ```
 
-Targets are written as `platform/arch/kind`. The download page hands each
+Targets are written as `platform/arch/kind`. The macOS package is universal, so
+it covers Intel as well as Apple Silicon; there is no separate Intel build. Also
+published, and available by naming them: the macOS `.dmg`, the Squirrel
+`Claude Setup.exe` for both Windows architectures, and per-arch darwin `.zip`s,
+which are auto-update payloads rather than something to install. The download page hands each
 platform an `/api/desktop/<target>/latest/redirect` URL that redirects to the
 artifact on `downloads.claude.ai`, and `latest` is the only channel — pinned
 versions and names like `stable` and `beta` are refused.
