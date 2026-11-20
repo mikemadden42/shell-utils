@@ -78,10 +78,12 @@ Codex's `prerelease` channel is undocumented and unused by the official
 Both honour the same base-URL override as their download scripts
 (`CLAUDE_CODE_RELEASES_BASE_URL`, `CODEX_RELEASES_BASE_URL`).
 
-`claude-code-versions.pl` is a Perl 5.34 port of `claude-code-versions.bash`
-with the same arguments, output, exit status and base-URL override. It fetches
-with the core `HTTP::Tiny` module instead of running `curl`; HTTPS also needs
-`IO::Socket::SSL` and `Net::SSLeay`, which the macOS system Perl includes.
+`claude-code-versions.pl` and `codex-versions.pl` are Perl 5.34 ports of the
+bash scripts with the same arguments, output, exit status and base-URL
+overrides. They fetch with the core `HTTP::Tiny` module instead of running
+`curl`, and `codex-versions.pl` parses JSON with the core `JSON::PP` instead of
+`jq`. HTTPS also needs `IO::Socket::SSL` and `Net::SSLeay`, which the macOS
+system Perl includes.
 
 ## Claude desktop installers
 
