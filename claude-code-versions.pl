@@ -11,8 +11,9 @@ use HTTP::Tiny;
 #
 # Usage: claude-code-versions.pl [CHANNEL...]   (defaults to stable latest)
 
+# Like the shell's ${VAR:-default}, an empty variable falls back too.
 my $base_url = $ENV{CLAUDE_CODE_RELEASES_BASE_URL}
-    // 'https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases';
+    || 'https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases';
 
 my ( $can_ssl, $ssl_reason ) = HTTP::Tiny->can_ssl;
 if ( $base_url =~ /^https:/i && !$can_ssl ) {
@@ -22,7 +23,9 @@ if ( $base_url =~ /^https:/i && !$can_ssl ) {
 
 # HTTP::Tiny has a single inactivity timeout rather than curl's separate
 # connect and total limits; it follows redirects by default, like curl -L.
-my $http = HTTP::Tiny->new( timeout => 30 );
+# Certificates are checked explicitly, since HTTP::Tiny 0.076 (Perl 5.34)
+# skips that unless verify_SSL is set.
+my $http = HTTP::Tiny->new( timeout => 30, verify_SSL => 1 );
 
 sub is_version {
     my ($v) = @_;
