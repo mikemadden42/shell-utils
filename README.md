@@ -85,6 +85,24 @@ overrides. They fetch with the core `HTTP::Tiny` module instead of running
 `jq`. HTTPS also needs `IO::Socket::SSL` and `Net::SSLeay`, which the macOS
 system Perl includes.
 
+## Claude Code binaries
+
+`download-claude-code.bash` mirrors the Claude Code native binary for every
+platform `manifest.json` lists into `claude-<version>/`, verifying each against
+the manifest's SHA256 and size and writing a `sha256sums.txt`:
+
+```bash
+./download-claude-code.bash           # stable
+./download-claude-code.bash latest    # another channel
+./download-claude-code.bash 2.1.311   # a specific release
+```
+
+`download-claude-code.pl` is a Perl 5.34 port with the same arguments, output
+and `CLAUDE_CODE_RELEASES_BASE_URL` override. It needs no `curl`, `jq` or
+checksum tool: `HTTP::Tiny`, `JSON::PP` and `Digest::SHA` replace them, and it
+resumes partial files, retries transient failures and holds binary downloads to
+HTTPS the way the bash script's curl flags do.
+
 ## Claude desktop installers
 
 `download-claude-desktop.bash` mirrors the Claude desktop app installers — the
