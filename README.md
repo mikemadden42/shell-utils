@@ -238,3 +238,12 @@ archives, so the zip check always runs, where the bash script skips it when
 `unzip` is missing. Reading a zip front to back never touches its central
 directory, so the port also checks that the directory and its end records
 agree with the entries it read.
+
+## Days since a date
+
+`diff-days.bash` prints the whole days between today and the date set in
+`past_date`. It needs GNU `date` for `--date`; macOS `date` rejects that, and
+the script then counts from 1970 instead and still exits 0. `diff-days.pl` is a
+Perl 5.34 port with the same output that works on both, using the core
+`Time::Local` module to read the date as local midnight, as GNU `date` does,
+and exiting non-zero for an invalid date.
