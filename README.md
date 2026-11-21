@@ -213,3 +213,28 @@ arguments, output and overrides (`COPILOT_REPO_URL` and `COPILOT_VERSION`;
 `QWEN_RELEASE_BASE` and `QWEN_INSTALL_VERSION`). Like the other ports they need
 no `curl` or checksum tool. The Copilot port still resolves `latest` from where
 GitHub's `/releases/latest` redirects rather than through the rate-limited API.
+
+## Cursor Agent CLI packages
+
+`download-cursor.bash` mirrors the Cursor Agent CLI (`cursor-agent`) package
+for macOS, Linux and Windows into `cursor-agent-<version>/`:
+
+```bash
+./download-cursor.bash                     # the version cursor.com/install pins
+./download-cursor.bash 2026.11.19-f005e9d  # a specific build
+```
+
+Cursor publishes no checksums, manifest or index, so the platform list is
+written out, `latest` is read from the install script, and the
+`sha256sums.txt` it writes is this mirror's own record. A download is accepted
+when the archive decompresses cleanly, and an existing file is kept when it
+also matches the advertised size.
+
+`download-cursor.pl` is a Perl 5.34 port with the same arguments, output and
+overrides (`CURSOR_INSTALL_URL`, `CURSOR_DOWNLOAD_BASE`, `CURSOR_VERSION`). It
+needs no `curl`, checksum tool, `gzip` or `unzip`: the core
+`IO::Uncompress::Gunzip` and `IO::Uncompress::Unzip` modules test the
+archives, so the zip check always runs, where the bash script skips it when
+`unzip` is missing. Reading a zip front to back never touches its central
+directory, so the port also checks that the directory and its end records
+agree with the entries it read.
