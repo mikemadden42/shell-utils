@@ -151,3 +151,26 @@ challenged target is addressed directly on the CDN once any other target has
 resolved, and that URL is confirmed there before anything is downloaded. That
 needs a second target in the same run, so if the macOS endpoint is being
 challenged, ask for a Windows target alongside it rather than on its own.
+
+## Kimi Code and Muse binaries
+
+`download-kimi.bash` mirrors the Kimi Code CLI binary for every platform its
+per-version `manifest.json` lists into `kimi-code-<version>/`, and
+`download-muse.bash` mirrors every Muse Code artifact its release manifest
+lists into `muse-<version>/`. Each verifies the downloads against the
+manifest's SHA256 and writes a `sha256sums.txt`:
+
+```bash
+./download-kimi.bash           # latest
+./download-kimi.bash 2.7.2     # a specific release
+./download-muse.bash           # the muse-stable channel
+MUSE_CHANNEL=other ./download-muse.bash
+```
+
+`download-kimi.pl` and `download-muse.pl` are Perl 5.34 ports with the same
+arguments, output and overrides (`KIMI_DOWNLOAD_BASE` and `KIMI_VERSION`;
+`MUSE_CHANNEL` and `MUSE_CHANNEL_URL`). Like `download-claude-code.pl`, they
+need no `curl`, `jq` or checksum tool, and they resume partial files, retry
+transient failures and hold binary downloads to HTTPS. The Muse port holds its
+manifest requests to HTTPS too and sends the launcher's User-Agent, as the bash
+script does.
