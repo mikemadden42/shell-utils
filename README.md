@@ -152,6 +152,14 @@ resolved, and that URL is confirmed there before anything is downloaded. That
 needs a second target in the same run, so if the macOS endpoint is being
 challenged, ask for a Windows target alongside it rather than on its own.
 
+`download-claude-desktop.pl` is a Perl 5.34 port with the same arguments,
+output and overrides (`CLAUDE_DESKTOP_API_BASE_URL`, `CLAUDE_DESKTOP_RELEASE`).
+It needs no `curl`, checksum tool or MD5 tool: `HTTP::Tiny`, `Digest::SHA` and
+`Digest::MD5` replace them, so the ETag check always runs. It keeps
+`HTTP::Tiny`'s own User-Agent, which the bot challenge has been seen to let
+through where it answers curl's with a 403, so the derivation above is needed
+less often; it is kept for when the challenge does catch it.
+
 ## Kimi Code and Muse binaries
 
 `download-kimi.bash` mirrors the Kimi Code CLI binary for every platform its
