@@ -58,6 +58,12 @@ against the release metadata's SHA256 digest and writing a `SHA256SUMS.txt`:
 files, retries transient failures and holds archive downloads to HTTPS the way
 the bash script's curl flags do.
 
+`install-codex.pl` is a Perl 5.34 port of `install-codex.bash` with the same
+arguments, output, layout and overrides, and it reuses a mirror from either
+download script. It needs no `curl`, `jq` or checksum tool, but it still runs
+the system `tar` to unpack: core `Archive::Tar` holds each entry in memory and
+peaks around 1.5 GB on the `codex` binary, too much for an installer.
+
 ## Release channel versions
 
 `claude-code-versions.bash` and `codex-versions.bash` print the version each
