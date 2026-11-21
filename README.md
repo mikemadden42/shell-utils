@@ -64,6 +64,12 @@ download script. It needs no `curl`, `jq` or checksum tool, but it still runs
 the system `tar` to unpack: core `Archive::Tar` holds each entry in memory and
 peaks around 1.5 GB on the `codex` binary, too much for an installer.
 
+`uninstall-codex.pl` is a Perl 5.34 port of `uninstall-codex.bash` with the same
+options, output and overrides. Like the bash script, it only removes links that
+point into the standalone tree and asks before removing anything unless given
+`--yes`; when input ends without an answer it reports the abort rather than
+exiting silently.
+
 ## Release channel versions
 
 `claude-code-versions.bash` and `codex-versions.bash` print the version each
