@@ -247,3 +247,14 @@ the script then counts from 1970 instead and still exits 0. `diff-days.pl` is a
 Perl 5.34 port with the same output that works on both, using the core
 `Time::Local` module to read the date as local midnight, as GNU `date` does,
 and exiting non-zero for an invalid date.
+
+## Archive hashes
+
+`add-hashes.sh` writes a `<name>.sha256` next to each `.tar`, `.tgz`, `.txz` and
+`.zip` in the current directory that does not have one yet. `add-hashes.pl` is a
+Perl 5.34 port with the same output and files that hashes with the core
+`Digest::SHA` module instead of `sha256sum`. Names holding a backslash, newline
+or carriage return are escaped the way GNU `sha256sum` does it, so
+`sha256sum -c` reads them back. A file that cannot be read is reported and
+leaves no `.sha256`, where the shell script leaves an empty one that later runs
+then skip.
