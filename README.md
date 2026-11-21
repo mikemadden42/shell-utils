@@ -13,6 +13,38 @@ These scripts only work on macOS:
 - ls-battery.sh
 - set-volume.sh
 
+## Perl requirements
+
+The `.pl` scripts are Perl 5.34 ports of the shell scripts and use only core
+modules, but the ones that download over HTTPS also need `IO::Socket::SSL` and
+`Net::SSLeay`, which are not core, plus the system CA certificates to verify
+against. Without them they stop with `HTTPS support unavailable`.
+
+- **macOS**: the system `/usr/bin/perl` includes both. Homebrew's Perl does not,
+  and `#!/usr/bin/env perl` picks it when it comes first on `$PATH`; either run
+  the script with `/usr/bin/perl` or install them with `cpan IO::Socket::SSL`.
+- **Debian / Ubuntu**:
+
+  ```bash
+  sudo apt install perl libio-socket-ssl-perl libnet-ssleay-perl ca-certificates
+  ```
+
+- **RHEL / Fedora** (and Rocky, Alma, Amazon Linux):
+
+  ```bash
+  sudo dnf install perl perl-IO-Socket-SSL perl-Net-SSLeay ca-certificates
+  ```
+
+  Install the full `perl` package rather than just `perl-interpreter`: these
+  distributions split core modules such as `HTTP::Tiny`, `JSON::PP`,
+  `Digest::SHA` and `Time::Local` into packages of their own.
+
+Check that HTTPS works:
+
+```bash
+perl -MHTTP::Tiny -e 'print HTTP::Tiny->can_ssl ? "ok\n" : (HTTP::Tiny->can_ssl)[1]'
+```
+
 ## Codex CLI
 
 `install-codex.bash` installs the OpenAI Codex CLI from its standalone package
@@ -109,8 +141,8 @@ Both honour the same base-URL override as their download scripts
 bash scripts with the same arguments, output, exit status and base-URL
 overrides. They fetch with the core `HTTP::Tiny` module instead of running
 `curl`, and `codex-versions.pl` parses JSON with the core `JSON::PP` instead of
-`jq`. HTTPS also needs `IO::Socket::SSL` and `Net::SSLeay`, which the macOS
-system Perl includes.
+`jq`. HTTPS also needs `IO::Socket::SSL` and `Net::SSLeay`; see
+[Perl requirements](#perl-requirements).
 
 ## Claude Code binaries
 
