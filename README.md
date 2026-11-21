@@ -174,3 +174,20 @@ need no `curl`, `jq` or checksum tool, and they resume partial files, retry
 transient failures and hold binary downloads to HTTPS. The Muse port holds its
 manifest requests to HTTPS too and sends the launcher's User-Agent, as the bash
 script does.
+
+## Antigravity CLI builds
+
+`download-antigravity.bash` mirrors the Antigravity CLI (`agy`) artifact for
+every platform manifest the auto-updater serves into `antigravity-<version>/`,
+verifying each against the manifest's SHA512 and writing a `SHA512SUMS.txt`.
+The manifests only describe the latest release, so it takes no arguments:
+
+```bash
+./download-antigravity.bash
+```
+
+`download-antigravity.pl` is a Perl 5.34 port with the same output and
+`ANTIGRAVITY_BASE_URL` override. `Digest::SHA` computes the SHA512 in place of
+`sha512sum`, `shasum` or `openssl`, and like the other ports it needs no `curl`
+or `jq`. A manifest that is not valid JSON is reported as malformed and
+skipped, where the bash script stops on the `jq` error.
