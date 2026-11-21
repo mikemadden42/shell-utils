@@ -159,7 +159,8 @@ sub fetch_once {
                         }
                         $total = total_size($res);
                         $total += $written
-                            if $total && $res->{status} == 206
+                            if $total
+                            && $res->{status} == 206
                             && !defined $res->{headers}{'content-range'};
                     }
                     print {$fh} $chunk or fail("cannot write $file: $!");

@@ -17,10 +17,10 @@ my $past_date = '2020-07-06';
 # GNU date, which macOS lacks.
 my ( $year, $month, $day ) = $past_date =~ /^(\d{4})-(\d{2})-(\d{2})\z/
     or fail("invalid date '$past_date', expected YYYY-MM-DD.");
-my $now_seconds  = time;
-my $past_seconds = eval {
-    timelocal_posix( 0, 0, 0, $day, $month - 1, $year - 1900 );
-} // fail("invalid date '$past_date'.");
+my $now_seconds = time;
+my $past_seconds =
+    eval { timelocal_posix( 0, 0, 0, $day, $month - 1, $year - 1900 ); }
+    // fail("invalid date '$past_date'.");
 
 # Calculate the difference in seconds
 my $difference_seconds = $now_seconds - $past_seconds;

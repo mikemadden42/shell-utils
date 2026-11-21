@@ -162,7 +162,8 @@ sub fetch_once {
                         }
                         $total = total_size($res);
                         $total += $written
-                            if $total && $res->{status} == 206
+                            if $total
+                            && $res->{status} == 206
                             && !defined $res->{headers}{'content-range'};
                     }
                     print {$fh} $chunk or fail("cannot write $file: $!");
@@ -218,11 +219,10 @@ sub download {
 ( my $version = $version_input ) =~ s/^rust-v//;
 $version =~ s/^v//;
 fail(
-    "invalid version '$version_input'. Expected latest or x.y.z[-alpha|-beta]."
-    )
+    "invalid version '$version_input'. Expected latest or x.y.z[-alpha|-beta].")
     if $version ne 'latest'
-    && $version !~
-    /^[0-9]+\.[0-9]+\.[0-9]+(?:-alpha(?:\.[0-9]+){0,2}|-beta(?:\.[0-9]+)?)?\z/;
+    && $version
+    !~ /^[0-9]+\.[0-9]+\.[0-9]+(?:-alpha(?:\.[0-9]+){0,2}|-beta(?:\.[0-9]+)?)?\z/;
 
 my $metadata_url =
     $version eq 'latest'
@@ -248,14 +248,15 @@ fail("metadata version $VERSION does not match requested $version.")
 # targets are picked up automatically instead of silently going unmirrored.
 # The first asset of each name wins, as the bash script's lookup does.
 my %assets;
-for my $entry ( ref $metadata->{assets} eq 'ARRAY' ? @{ $metadata->{assets} } : () )
+for my $entry (
+    ref $metadata->{assets} eq 'ARRAY' ? @{ $metadata->{assets} } : () )
 {
     next if ref $entry ne 'HASH';
     my $name = text_of( $entry->{name} );
     $assets{$name} //= $entry
         if $name =~ /^codex-package-.+\.tar\.gz\z/s;
 }
-my @targets = sort map { /^codex-package-(.+)\.tar\.gz\z/s } keys %assets;
+my @targets = sort map {/^codex-package-(.+)\.tar\.gz\z/s} keys %assets;
 fail('release publishes no codex-package archives.') if !@targets;
 
 printf "Mirroring %d targets...\n", scalar @targets;

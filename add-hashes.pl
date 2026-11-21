@@ -26,7 +26,7 @@ my $status = 0;
 
 # Each pattern is expanded and sorted on its own, in this order, as the shell
 # does with for i in *.tar *.tgz *.txz *.zip.
-for my $file ( map { glob } qw(*.tar *.tgz *.txz *.zip) ) {
+for my $file ( map {glob} qw(*.tar *.tgz *.txz *.zip) ) {
     next if !-e $file;
     next if -f "$file.sha256";
 

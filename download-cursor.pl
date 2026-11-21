@@ -6,8 +6,8 @@ use Digest::SHA;
 use File::Path qw(make_path);
 use HTTP::Tiny;
 use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Uncompress::Unzip qw($UnzipError);
-use Time::Local qw(timegm);
+use IO::Uncompress::Unzip  qw($UnzipError);
+use Time::Local            qw(timegm);
 
 # Mirrors the Cursor Agent CLI ("cursor-agent") packages. The official
 # installer at cursor.com/install detects the platform and downloads one
@@ -32,8 +32,8 @@ sub first_set {
 
 my $install_url =
     first_set( $ENV{CURSOR_INSTALL_URL}, 'https://cursor.com/install' );
-my $base_url = first_set( $ENV{CURSOR_DOWNLOAD_BASE},
-    'https://downloads.cursor.com/lab' );
+my $base_url =
+    first_set( $ENV{CURSOR_DOWNLOAD_BASE}, 'https://downloads.cursor.com/lab' );
 my $version_input = first_set( $ARGV[0], $ENV{CURSOR_VERSION}, 'latest' );
 
 # Platforms to mirror. There is no index endpoint to enumerate. The install
@@ -179,7 +179,8 @@ sub fetch_once {
                         }
                         $total = total_size($res);
                         $total += $written
-                            if $total && $res->{status} == 206
+                            if $total
+                            && $res->{status} == 206
                             && !defined $res->{headers}{'content-range'};
                     }
                     print {$fh} $chunk or fail("cannot write $file: $!");
@@ -256,10 +257,16 @@ sub drain {
         return 0 if $read < 0;
         if ($seen) {
             my $info = $z->getHeaderInfo;
-            push @$seen,
-                zip_entry( @$info{qw(Name CRC32 MethodID CompressedLength
-                        UncompressedLength)}, $offset );
-            $offset += $info->{HeaderLength} + $info->{CompressedLength}
+            push @$seen, zip_entry(
+                @$info{
+                    qw(Name CRC32 MethodID CompressedLength
+                        UncompressedLength)
+                },
+                $offset
+            );
+            $offset
+                += $info->{HeaderLength}
+                + $info->{CompressedLength}
                 + $info->{TrailerLength};
         }
 
@@ -317,8 +324,8 @@ sub zip_directory {
         seek $fh, $end64_at, 0 or return;
         read( $fh, $end64, 56 ) == 56 or return;
         my ( $record_size, $needs, @wide );
-        ( $sig, $record_size, $needs, $disk, $dir_disk, $disk_count, @wide )
-            = unpack 'a4 Q< x2 v V V Q< Q< Q< Q<', $end64;
+        ( $sig, $record_size, $needs, $disk, $dir_disk, $disk_count, @wide ) =
+            unpack 'a4 Q< x2 v V V Q< Q< Q< Q<', $end64;
         return
                if $sig ne "PK\x06\x06"
             || $record_size < 44
@@ -345,17 +352,17 @@ sub zip_directory {
     my ( @entries, $pos );
     for ( $pos = 0; $pos < $dir_size; ) {
         return if $pos + 46 > $dir_size;
-        my ($sig,      $needs,     $method,     $crc,
-            $packed,   $unpacked,  $name_size, $extra_size,
-            $note_size, $local_at
-        ) = unpack 'a4 x2 v x2 v x4 V V V v v v x8 V', substr $dir, $pos, 46;
+        my ($sig,      $needs,     $method,     $crc,       $packed,
+            $unpacked, $name_size, $extra_size, $note_size, $local_at
+            )
+            = unpack 'a4 x2 v x2 v x4 V V V v v v x8 V', substr $dir, $pos, 46;
 
         # 6.3 is the newest zip version; unzip refuses anything that claims
         # to need a later one.
         return if $sig ne "PK\x01\x02" || ( $needs & 0xFF ) > 63;
         my $next = $pos + 46 + $name_size + $extra_size + $note_size;
         return if $next > $dir_size;
-        my $name  = substr $dir, $pos + 46,              $name_size;
+        my $name  = substr $dir, $pos + 46, $name_size;
         my $extra = substr $dir, $pos + 46 + $name_size, $extra_size;
 
         # A size or offset too big for 32 bits is all ones here, with the
@@ -399,7 +406,7 @@ sub archive_ok {
     # exactly the members found, in the same order.
     my @seen;
     drain( IO::Uncompress::Unzip->new( $file, %strict ), \@seen ) or return 0;
-    my @listed = zip_directory($file) or return 0;
+    my @listed = zip_directory($file)                             or return 0;
     return join( "\n", @seen ) eq join( "\n", @listed );
 }
 
@@ -413,9 +420,8 @@ if ( $version eq 'latest' ) {
     my $install_script = get_text($install_url);
     my %found;
     $found{$&} = 1 while $install_script =~ /$version_re/g;
-    fail( 'expected one version in the install script, found '
-            . keys(%found)
-            . '.' )
+    fail( 'expected one version in the install script, found ' .
+            keys(%found) . '.' )
         if keys %found != 1;
     ($version) = keys %found;
 }

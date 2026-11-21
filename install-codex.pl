@@ -4,11 +4,11 @@ use warnings;
 
 use Digest::SHA;
 use File::Basename qw(basename);
-use File::Path qw(make_path remove_tree);
-use File::Temp qw(tempdir);
+use File::Path     qw(make_path remove_tree);
+use File::Temp     qw(tempdir);
 use HTTP::Tiny;
 use JSON::PP;
-use POSIX qw(_exit uname);
+use POSIX       qw(_exit uname);
 use Time::Local qw(timegm);
 
 # Installs the OpenAI Codex CLI from its standalone package archive.
@@ -34,8 +34,8 @@ sub first_set {
 my $version_input = first_set( $ARGV[0], $ENV{CODEX_RELEASE}, 'latest' );
 my $base_url      = first_set( $ENV{CODEX_RELEASES_BASE_URL},
     'https://releases.openai.com/codex' );
-my $bin_dir = first_set( $ENV{CODEX_INSTALL_DIR}, "$ENV{HOME}/.local/bin" );
-my $codex_home      = first_set( $ENV{CODEX_HOME}, "$ENV{HOME}/.codex" );
+my $bin_dir    = first_set( $ENV{CODEX_INSTALL_DIR}, "$ENV{HOME}/.local/bin" );
+my $codex_home = first_set( $ENV{CODEX_HOME},        "$ENV{HOME}/.codex" );
 my $standalone_root = "$codex_home/packages/standalone";
 my $releases_dir    = "$standalone_root/releases";
 my $current_link    = "$standalone_root/current";
@@ -177,7 +177,8 @@ sub fetch_once {
                         }
                         $total = total_size($res);
                         $total += $written
-                            if $total && $res->{status} == 206
+                            if $total
+                            && $res->{status} == 206
                             && !defined $res->{headers}{'content-range'};
                     }
                     print {$fh} $chunk or fail("cannot write $file: $!");
@@ -259,7 +260,7 @@ my $os =
 my $arch =
       $machine =~ /^(?:x86_64|amd64)\z/  ? 'x86_64'
     : $machine =~ /^(?:arm64|aarch64)\z/ ? 'aarch64'
-    :   fail("unsupported architecture: $machine");
+    :            fail("unsupported architecture: $machine");
 
 if ( $os eq 'darwin' && $arch eq 'x86_64' ) {
     my $translated = `sysctl -n sysctl.proc_translated 2>/dev/null` // '';
@@ -273,11 +274,10 @@ my $target =
 ( my $version = $version_input ) =~ s/^rust-v//;
 $version =~ s/^v//;
 fail(
-    "invalid version '$version_input'. Expected latest or x.y.z[-alpha|-beta]."
-    )
+    "invalid version '$version_input'. Expected latest or x.y.z[-alpha|-beta].")
     if $version ne 'latest'
-    && $version !~
-    /^[0-9]+\.[0-9]+\.[0-9]+(?:-alpha(?:\.[0-9]+){0,2}|-beta(?:\.[0-9]+)?)?\z/;
+    && $version
+    !~ /^[0-9]+\.[0-9]+\.[0-9]+(?:-alpha(?:\.[0-9]+){0,2}|-beta(?:\.[0-9]+)?)?\z/;
 
 my $metadata_url =
     $version eq 'latest'
@@ -334,7 +334,10 @@ say "==> Installing Codex CLI $VERSION ($target)";
 # exits, including on Ctrl-C.
 my $tmp_dir       = tempdir( 'install-codex.XXXXXXXX', TMPDIR => 1 );
 my $stage_release = "$releases_dir/.staging.$release_name.$$";
-END { remove_tree( grep { defined && -e } $tmp_dir, $stage_release ) }
+
+END {
+    remove_tree( grep { defined && -e } $tmp_dir, $stage_release );
+}
 $SIG{$_} = sub { exit 1 }
     for qw(INT TERM);
 
@@ -405,15 +408,17 @@ rename $stage_release, $release_dir
 # output and exit status.
 sub output_of {
     my @command = @_;
-    my $pid = open my $fh, '-|';
+    my $pid     = open my $fh, '-|';
     fail("cannot run $command[0]: $!") if !defined $pid;
     if ( !$pid ) {
         open STDERR, '>', '/dev/null';
+
         # _exit, so the child does not run the END block and remove the
         # parent's temporary files.
-        exec {$command[0]} @command or _exit(127);
+        exec { $command[0] } @command or _exit(127);
     }
-    my $output = do { local $/; <$fh> } // '';
+    my $output = do { local $/; <$fh> }
+        // '';
     close $fh;
     return ( $output, $? );
 }
@@ -421,8 +426,7 @@ sub output_of {
 # The version is the last word codex --version prints, as awk '{print $NF}'
 # takes it from each line.
 my ( $output, $status ) = output_of( "$release_dir/bin/codex", '--version' );
-my $installed = join "\n",
-    map { ( split ' ' )[-1] // '' } split /\n/, $output;
+my $installed = join "\n", map { ( split ' ' )[-1] // '' } split /\n/, $output;
 fail("unpacked codex did not run (exit status $status).") if $status;
 fail("unpacked codex reports version '$installed', expected $VERSION.")
     if $installed ne $VERSION;
@@ -451,8 +455,8 @@ my $host_link = "$bin_dir/codex-code-mode-host";
 if ( $os eq 'darwin' ) {
     relink( $host_link, "$current_link/bin/codex-code-mode-host" );
 }
-elsif ( ( readlink($host_link) // '' ) eq
-    "$current_link/bin/codex-code-mode-host" )
+elsif (
+    ( readlink($host_link) // '' ) eq "$current_link/bin/codex-code-mode-host" )
 {
     unlink $host_link;
 }

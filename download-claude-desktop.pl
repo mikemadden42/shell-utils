@@ -253,7 +253,7 @@ for my $arg (@ARGV) {
 @targets = @DEFAULT_TARGETS if !@targets;
 
 my ( $version, $build ) = ( '', '' );
-my ( %url_of, @unresolved );
+my ( %url_of,  @unresolved );
 
 printf "Resolving %d targets (%s)...\n", scalar @targets, $channel;
 
@@ -267,7 +267,7 @@ for my $target (@targets) {
 
     # The redirect path carries the release:
     # .../releases/<platform>/<arch>/<version>/Claude-<build>.<ext>
-    if ( $url =~ m{ /releases/[a-z0-9]+/[a-z0-9]+/([0-9][0-9A-Za-z.-]*)
+    if ($url =~ m{ /releases/[a-z0-9]+/[a-z0-9]+/([0-9][0-9A-Za-z.-]*)
                       /Claude-([0-9a-f]+)\.[a-z0-9]+ \z }x
         )
     {
@@ -311,8 +311,8 @@ if ( @unresolved && $version ne '' ) {
     }
 }
 
-fail(   'no target resolved. claude.ai may be challenging this client;'
-      . ' try again or from another network.' )
+fail(     'no target resolved. claude.ai may be challenging this client;'
+        . ' try again or from another network.' )
     if !%url_of;
 
 say "Mirroring Claude desktop $version (build $build)...";
@@ -335,7 +335,7 @@ for my $target (@targets) {
 
     # content-range is "bytes 0-0/<total>"; the total after the slash is the
     # size.
-    my $res = probe($url);
+    my $res    = probe($url);
     my ($size) = header_of( $res, 'content-range' ) =~ m{([^/]*)\z};
     ( my $etag = header_of( $res, 'etag' ) ) =~ s/"//g;
     fail("$target did not report a size.") if $size !~ /^[0-9]+\z/;

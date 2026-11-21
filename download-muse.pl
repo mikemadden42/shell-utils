@@ -104,8 +104,8 @@ sub get_json {
     my ($url) = @_;
     for ( my $hops = 0;; $hops++ ) {
         fail("refusing to fetch non-HTTPS URL $url") if $url !~ m{^https://}i;
-        my $res = $http->get( $url,
-            { headers => { Accept => 'application/json' } } );
+        my $res =
+            $http->get( $url, { headers => { Accept => 'application/json' } } );
         if ( $res->{status} =~ /^3/ && defined $res->{headers}{location} ) {
             fail("too many redirects fetching $url")
                 if $hops >= $max_redirects;

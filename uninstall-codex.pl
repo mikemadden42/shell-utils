@@ -3,7 +3,7 @@ use v5.34;
 use warnings;
 
 use File::Path qw(remove_tree);
-use POSIX qw(_exit);
+use POSIX      qw(_exit);
 
 # Removes a Codex CLI installed by install-codex.bash or install-codex.pl (or
 # the official install.sh, which uses the same layout).
@@ -21,8 +21,8 @@ sub first_set {
     return ( grep { defined && length } @_ )[0];
 }
 
-my $bin_dir = first_set( $ENV{CODEX_INSTALL_DIR}, "$ENV{HOME}/.local/bin" );
-my $codex_home      = first_set( $ENV{CODEX_HOME}, "$ENV{HOME}/.codex" );
+my $bin_dir    = first_set( $ENV{CODEX_INSTALL_DIR}, "$ENV{HOME}/.local/bin" );
+my $codex_home = first_set( $ENV{CODEX_HOME},        "$ENV{HOME}/.codex" );
 my $standalone_root = "$codex_home/packages/standalone";
 
 sub fail {
@@ -52,10 +52,10 @@ sub usage {
 
 my ( $purge, $dry_run, $assume_yes ) = ( 0, 0, 0 );
 for my $arg (@ARGV) {
-    if    ( $arg eq '--purge' )                    { $purge      = 1 }
-    elsif ( $arg eq '--dry-run' || $arg eq '-n' )  { $dry_run    = 1 }
-    elsif ( $arg eq '--yes'     || $arg eq '-y' )  { $assume_yes = 1 }
-    elsif ( $arg eq '--help'    || $arg eq '-h' )  { usage(); exit 0 }
+    if    ( $arg eq '--purge' )                   { $purge      = 1 }
+    elsif ( $arg eq '--dry-run' || $arg eq '-n' ) { $dry_run    = 1 }
+    elsif ( $arg eq '--yes' || $arg eq '-y' )     { $assume_yes = 1 }
+    elsif ( $arg eq '--help' || $arg eq '-h' )    { usage(); exit 0 }
     else { fail("unknown argument '$arg'. See --help.") }
 }
 
@@ -71,13 +71,14 @@ sub owned_link {
 # it printed whether or not it succeeded.
 sub output_of {
     my @command = @_;
-    my $pid = open my $fh, '-|';
+    my $pid     = open my $fh, '-|';
     return '' if !defined $pid;
     if ( !$pid ) {
         open STDERR, '>', '/dev/null';
-        exec {$command[0]} @command or _exit(127);
+        exec { $command[0] } @command or _exit(127);
     }
-    my $output = do { local $/; <$fh> } // '';
+    my $output = do { local $/; <$fh> }
+        // '';
     close $fh;
     return $output;
 }
