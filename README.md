@@ -191,3 +191,25 @@ The manifests only describe the latest release, so it takes no arguments:
 `sha512sum`, `shasum` or `openssl`, and like the other ports it needs no `curl`
 or `jq`. A manifest that is not valid JSON is reported as malformed and
 skipped, where the bash script stops on the `jq` error.
+
+## Copilot CLI and Qwen Code archives
+
+`download-copilot.bash` mirrors every `copilot-*` standalone build a GitHub
+Copilot CLI release lists in its `SHA256SUMS.txt` into
+`copilot-cli-<version>/`, skipping the `github-copilot-*.tgz` npm packages.
+`download-qwen.bash` mirrors every Qwen Code archive the release's
+`SHA256SUMS` lists into `qwen-code-<version>/`. Both verify each download
+against that file:
+
+```bash
+./download-copilot.bash          # latest
+./download-copilot.bash 1.0.114  # a specific release
+./download-qwen.bash             # latest
+./download-qwen.bash 0.28.3      # a specific release
+```
+
+`download-copilot.pl` and `download-qwen.pl` are Perl 5.34 ports with the same
+arguments, output and overrides (`COPILOT_REPO_URL` and `COPILOT_VERSION`;
+`QWEN_RELEASE_BASE` and `QWEN_INSTALL_VERSION`). Like the other ports they need
+no `curl` or checksum tool. The Copilot port still resolves `latest` from where
+GitHub's `/releases/latest` redirects rather than through the rate-limited API.
