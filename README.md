@@ -43,6 +43,21 @@ you to make.
 Both honour `CODEX_INSTALL_DIR` (default `~/.local/bin`) and `CODEX_HOME`
 (default `~/.codex`).
 
+`download-codex.bash` mirrors the `codex-package-<target>.tar.gz` archive for
+every target the release publishes into `codex-<version>/`, verifying each
+against the release metadata's SHA256 digest and writing a `SHA256SUMS.txt`:
+
+```bash
+./download-codex.bash           # latest
+./download-codex.bash 0.154.0   # a specific release
+```
+
+`download-codex.pl` is a Perl 5.34 port with the same arguments, output and
+`CODEX_RELEASES_BASE_URL` override. It needs no `curl`, `jq` or checksum tool:
+`HTTP::Tiny`, `JSON::PP` and `Digest::SHA` replace them, and it resumes partial
+files, retries transient failures and holds archive downloads to HTTPS the way
+the bash script's curl flags do.
+
 ## Release channel versions
 
 `claude-code-versions.bash` and `codex-versions.bash` print the version each
