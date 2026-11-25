@@ -291,6 +291,27 @@ archives, so the zip check always runs, where the bash script skips it when
 directory, so the port also checks that the directory and its end records
 agree with the entries it read.
 
+## Bun releases
+
+`download-bun.bash` downloads the latest stable Bun release zip from GitHub
+into the current directory as `bun-v<version>-<target>.zip`, verifying it
+against the size and SHA-256 digest the release publishes:
+
+```bash
+./download-bun.bash        # the build for this machine
+./download-bun.bash --all  # macOS, Linux (glibc and musl) and Windows, x64 and arm64
+```
+
+Without `--all` it picks the same variant as Bun's install script: musl on musl
+Linux, `baseline` on x64 CPUs without AVX2, and the native arm64 build when an
+x64 shell is running under Rosetta 2. `--all` fetches the eight common builds
+and skips the baseline, profile, Android and FreeBSD ones. Digests come from
+GitHub's asset metadata, falling back to the release's `SHASUMS256.txt`, and an
+existing file is kept when its digest matches.
+
+It needs `curl` and `jq`. Set `GITHUB_TOKEN` to raise the GitHub API rate
+limit, and `BUN_RELEASE_API_URL` to point it at a mirror.
+
 ## Days since a date
 
 `diff-days.bash` prints the whole days between today and the date set in
